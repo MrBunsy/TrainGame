@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Train Game</title>
+        <script type="text/javascript" src="../LukesLibrary/CanvasGUI.js"></script>
+        <script type="text/javascript" src="../LukesLibrary/Vector.js"></script>
+        <script type="text/javascript" src="../LukesLibrary/Colour.js"></script>
+        <script type="text/javascript" src="../LukesLibrary/AnimationController.js"></script>
+        <script type="text/javascript" src="../LukesLibrary/Animations/Text.js"></script>
+        <script type="text/javascript" src="../LukesLibrary/Animations/Misc.js"></script>
+        <script type="text/javascript" src="../LukesLibrary/Animations/Explosions.js"></script>
+        <script type="text/javascript" src="../LukesLibrary/Maths.js"></script>
+        <script type="text/javascript" src="../LukesLibrary/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="TrainGame.js"></script>
+        <script type="text/javascript" src="Track.js"></script>
+    </head>
+    <body>
+        <div id="trainGameDiv" style="width:600px;height:600px;"></div>
+        
+        <script>
+            var trains = new TrainGame(document.getElementById("trainGameDiv"));
+            
+            trains.blocks.push(new Track(new Vector(5,5), [0,1,0,1]));
+            trains.blocks.push(new Track(new Vector(6,5), [1,0,0,1]));
+            
+            trains.draw();
+        </script>
+    </body>
+</html>
