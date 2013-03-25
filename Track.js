@@ -3,24 +3,33 @@
  */
 
 
-var Track = function(pos,connects){
+var Track = function(connections){
     
-    var connections=0;
-    for(var i=0;i<4;i++){
-        if(connects[i]){
-            connections++;
-        }
-    }
+    this.setConnections=function(connections){
+        this.connections = connections
         
-    if(connections !=2){
-        throw "Invalid connections";
+        var connects=0;
+        for(var i=0;i<4;i++){
+            if(connections[i]){
+                connects++;
+            }
+        }
+        if(connects !=2){
+            throw "Invalid connections: "+connects;
+        }
+        
     }
     
-    this.pos=pos;
+    
+    
+    this.getType=function(){
+        return "track"
+    }
+    
+   
+    
     
      /**
-     * x - xcoord
-     * y - ycoord
      * connects: [t,r,b,l]
      * t - top has track?
      * r - right
@@ -35,7 +44,7 @@ var Track = function(pos,connects){
         //only two connections
         var angle = -Math.PI/2;
         for(var i=0;i<4;i++){
-            if(connects[i]){
+            if(this.connections[i]){
                 ctx.beginPath();
 
                 ctx.moveTo(0,0);
@@ -58,4 +67,12 @@ var Track = function(pos,connects){
         
         }
     }
+    
+//    if(connections!=null){
+//        this.setConnections(connections);
+//    }else{
+        this.setConnections([true,false,true,false]);
+//    }
+    
+    
 }

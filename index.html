@@ -14,6 +14,7 @@
         <script type="text/javascript" src="../LukesLibrary/jquery-1.7.2.min.js"></script>
         <script type="text/javascript" src="TrainGame.js"></script>
         <script type="text/javascript" src="Track.js"></script>
+        <script type="text/javascript" src="Cell.js"></script>
     </head>
     <body>
         <div id="trainGameDiv" style="width:600px;height:600px;"></div>
@@ -21,8 +22,16 @@
         <script>
             var trains = new TrainGame(document.getElementById("trainGameDiv"));
             
-            trains.blocks.push(new Track(new Vector(5,5), [0,1,0,1]));
-            trains.blocks.push(new Track(new Vector(6,5), [1,0,0,1]));
+//            trains.blocks.push(new Track(new Vector(5,5), null));
+//            trains.blocks.push(new Track(new Vector(6,5), null));
+//            trains.blocks.push(new Track(new Vector(7,5), null));
+//            trains.blocks.push(new Track(new Vector(7,6), null));
+            trains.cells[5][5] = new Track();
+            trains.cells[6][5] = new Track();
+            trains.cells[7][5] = new Track();
+            trains.cells[7][6] = new Track();
+            
+            trains.updateCells();
             
             trains.draw();
         </script>

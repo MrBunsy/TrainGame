@@ -56,10 +56,94 @@ var TrainGame = function(div){
         
         this.cellSize=this.width/this.cellsWide;
         //this.cellHeighth=this.height/this.cellsHigh;
+        
+        for(var x=0;x<this.cellsWide;x++){
+            this.cells[x] = [];
+            for(var y=0;y<this.cellsHigh;y++){
+                this.cells[x][y] = new Cell();
+            }
+        }
     }
     
+    //run through everything and update everything
+    this.updateCells=function(){
+        var anythingChanged=false;
+        var count=0;
+        
+        do{
+             for(var x=0;x<this.cellsWide;x++){
+                for(var y=0;y<this.cellsHigh;y++){
+                    var nearBy = this.getNeighbours(x,y);
+                    
+                    if(this.cells[x][y].getType()=="track"){
+                        var nearRails = 0;
+                        //find how many rails nearby
+                        for(var i=0;i<4;i++){
+                            if(nearBy[i].getType()=="track"){
+                                nearRails++;
+                            }
+                        }
+
+                            var connects = [false,false,false,false];
+                            console.log("x:"+x+",y:"+y+" nearrails:"+nearRails);
+                            if(nearRails==1){
+                                for(var j=0;j<4;j++){
+                                    if(nearBy[j].getType()=="track"){
+                                        connects[j]=true;
+                                        connects[(j+2)%4]=true;
+                                        console.log("j:"+j);
+
+                                    }
+                                }
+                                this.cells[x][y].setConnections(connects);
+                            }else
+                            if(nearRails==2){
+                                //link the two together
+                                for(var j=0;j<4;j++){
+                                    if(nearBy[j].getType()=="track"){
+                                        connects[j]=true;
+                                        console.log("j:"+j);
+                                    }
+                                }
+                                this.cells[x][y].setConnections(connects);
+                            
+                        }
+                    }
+                    
+                }
+             }
+            
+            count++;
+            //check count so we can't get stuck in inifinite loop
+        }while(anythingChanged && count < 4)
+        
+    }
     
-    this.blocks=[];
+    this.tidyCoords = function(x,y){
+        x+=this.cellsWide;
+        x%=this.cellsWide;
+        
+        y+=this.cellsHigh;
+        y%=this.cellsHigh;
+        
+        return new Coords(x,y);
+    }
+    
+    this.getNeighbours=function(x,y){
+        var near = new Array(4);
+        near[0] = this.getCell(this.tidyCoords(x,y-1));
+        near[1] = this.getCell(this.tidyCoords(x+1,y));
+        near[2] = this.getCell(this.tidyCoords(x,y+1));
+        near[3] = this.getCell(this.tidyCoords(x-1,y));
+        
+        return near;
+    }
+    
+    this.getCell=function(coords){
+        return this.cells[coords.x][coords.y];
+    }
+    
+    this.cells=[];
     
     this.draw=function(){
         
@@ -85,21 +169,23 @@ var TrainGame = function(div){
         }
         
         
-        for(var i=0;i<this.blocks.length;i++){
+        for(var x=0;x<this.cellsWide;x++){
+                for(var y=0;y<this.cellsHigh;y++){
             
             
             
-            this.ctxs[0].save();
-            
-            var blockPos = this.blocks[i].pos.multiply(this.cellSize);
-            
-            this.ctxs[0].translate(blockPos.x+this.cellSize/2, blockPos.y+this.cellSize/2);
-            this.ctxs[0].scale(this.cellSize/100,this.cellSize/100);
-            //this.ctxs[0].scale(0.1);
-            
-            this.blocks[i].draw(this.ctxs[0]);
-            
-            this.ctxs[0].restore();
+                    this.ctxs[0].save();
+
+                    //var blockPos = this.cells[i].pos.multiply(this.cellSize);
+
+                    this.ctxs[0].translate(x*this.cellSize+this.cellSize/2, y*this.cellSize+this.cellSize/2);
+                    this.ctxs[0].scale(this.cellSize/100,this.cellSize/100);
+                    //this.ctxs[0].scale(0.1);
+
+                    this.cells[x][y].draw(this.ctxs[0]);
+
+                    this.ctxs[0].restore();
+                }
             
         }
     }
@@ -107,4 +193,9 @@ var TrainGame = function(div){
     
     this.generateCellSize(10,10);
    
+}
+
+var Coords = function(x,y){
+    this.x=x;
+    this.y=y;
 }
