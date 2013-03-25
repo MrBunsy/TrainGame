@@ -71,7 +71,7 @@ var TrainGame = function(div){
         var count=0;
         
         do{
-             for(var x=0;x<this.cellsWide;x++){
+            for(var x=0;x<this.cellsWide;x++){
                 for(var y=0;y<this.cellsHigh;y++){
                     var nearBy = this.getNeighbours(x,y);
                     
@@ -84,37 +84,51 @@ var TrainGame = function(div){
                             }
                         }
 
-                            var connects = [false,false,false,false];
-                            console.log("x:"+x+",y:"+y+" nearrails:"+nearRails);
-                            if(nearRails==1){
-                                for(var j=0;j<4;j++){
-                                    if(nearBy[j].getType()=="track"){
-                                        connects[j]=true;
-                                        connects[(j+2)%4]=true;
-                                        console.log("j:"+j);
+                        var connects = [false,false,false,false];
+                        console.log("x:"+x+",y:"+y+" nearrails:"+nearRails);
+                        if(nearRails==1){
+                            for(var j=0;j<4;j++){
+                                if(nearBy[j].getType()=="track"){
+                                    connects[j]=true;
+                                    connects[(j+2)%4]=true;
+                                    console.log("j:"+j);
 
-                                    }
                                 }
-                                this.cells[x][y].setConnections(connects);
-                            }else
-                            if(nearRails==2){
-                                //link the two together
-                                for(var j=0;j<4;j++){
-                                    if(nearBy[j].getType()=="track"){
-                                        connects[j]=true;
-                                        console.log("j:"+j);
-                                    }
+                            }
+                            this.cells[x][y].setConnections(connects);
+                        }else
+                        if(nearRails==2){
+                            //link the two together
+                            for(var j=0;j<4;j++){
+                                if(nearBy[j].getType()=="track"){
+                                    connects[j]=true;
+                                    console.log("j:"+j);
                                 }
-                                this.cells[x][y].setConnections(connects);
+                            }
+                            this.cells[x][y].setConnections(connects);
                             
+                        }
+                        else if (nearRails ==3){
+                            //find the empty nearby and then make the next two linked
+                             for(var j=0;j<4;j++){
+                                if(nearBy[j].getType()!="track"){
+                                    connects[(j+1)%4]=true;
+                                    connects[(j+2)%4]=true;
+                                }
+                             }
+                             this.cells[x][y].setConnections(connects);
+                        }else if(nearRails==4){
+                            connects[0]=true;
+                            connects[2]=true;
+                            this.cells[x][y].setConnections(connects);
                         }
                     }
                     
                 }
-             }
+            }
             
             count++;
-            //check count so we can't get stuck in inifinite loop
+        //check count so we can't get stuck in inifinite loop
         }while(anythingChanged && count < 4)
         
     }
@@ -170,28 +184,70 @@ var TrainGame = function(div){
         
         
         for(var x=0;x<this.cellsWide;x++){
-                for(var y=0;y<this.cellsHigh;y++){
+            for(var y=0;y<this.cellsHigh;y++){
             
             
             
-                    this.ctxs[0].save();
+                this.ctxs[0].save();
 
-                    //var blockPos = this.cells[i].pos.multiply(this.cellSize);
+                //var blockPos = this.cells[i].pos.multiply(this.cellSize);
 
-                    this.ctxs[0].translate(x*this.cellSize+this.cellSize/2, y*this.cellSize+this.cellSize/2);
-                    this.ctxs[0].scale(this.cellSize/100,this.cellSize/100);
-                    //this.ctxs[0].scale(0.1);
+                this.ctxs[0].translate(x*this.cellSize+this.cellSize/2, y*this.cellSize+this.cellSize/2);
+                this.ctxs[0].scale(this.cellSize/100,this.cellSize/100);
+                //this.ctxs[0].scale(0.1);
 
-                    this.cells[x][y].draw(this.ctxs[0]);
+                this.cells[x][y].draw(this.ctxs[0]);
 
-                    this.ctxs[0].restore();
-                }
+                this.ctxs[0].restore();
+            }
             
         }
     }
     
+    this.getMousePos=function(e){
+        var x,y;
+                
+        if(e.pageX || e.pageY){
+            x=e.pageX;
+            y=e.pageY;
+        }else {
+            x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+            y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+        }
+        
+        var canvasPos = $("#"+this.div.id).offset();
+        //var canvasPos = $(this.canvas).offset();
+        
+//        x-=self.canvas.offsetLeft;
+//        y-=self.canvas.offsetTop;
+        x-=canvasPos.left;
+        y-=canvasPos.top;
+        
+        //if we're  using an inverted y axis, readjust mouse click pos
+        if(self.inverted){
+            y+=(self.height/2-y)*2
+        }
+        
+        return new Vector(x,y);
+    }
+    
+    this.mouseDown=function(e){
+        var mousePos = self.getMousePos(e);
+        var x = Math.floor(mousePos.x/self.cellSize);
+        var y = Math.floor(mousePos.y/self.cellSize);
+        
+        if(self.cells[x][y].getType()=="track"){
+            self.cells[x][y] = new Cell();
+        }else{
+            self.cells[x][y] = new Track();
+        }
+        self.updateCells();
+        self.draw();
+    }
     
     this.generateCellSize(10,10);
+    
+    this.div.addEventListener("mousedown", this.mouseDown,false);
    
 }
 
