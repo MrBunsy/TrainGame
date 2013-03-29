@@ -16,4 +16,9 @@ var Cell = function(){
     this.getType=function(){
         return "empty"
     }
+    
+    this.update=function(nearBy){
+        //return true if anything changed
+        return false;
+    }
 }

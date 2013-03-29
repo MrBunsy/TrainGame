@@ -75,54 +75,9 @@ var TrainGame = function(div){
                 for(var y=0;y<this.cellsHigh;y++){
                     var nearBy = this.getNeighbours(x,y);
                     
-                    if(this.cells[x][y].getType()=="track"){
-                        var nearRails = 0;
-                        //find how many rails nearby
-                        for(var i=0;i<4;i++){
-                            if(nearBy[i].getType()=="track"){
-                                nearRails++;
-                            }
-                        }
-
-                        var connects = [false,false,false,false];
-                        console.log("x:"+x+",y:"+y+" nearrails:"+nearRails);
-                        if(nearRails==1){
-                            for(var j=0;j<4;j++){
-                                if(nearBy[j].getType()=="track"){
-                                    connects[j]=true;
-                                    connects[(j+2)%4]=true;
-                                    console.log("j:"+j);
-
-                                }
-                            }
-                            this.cells[x][y].setConnections(connects);
-                        }else
-                        if(nearRails==2){
-                            //link the two together
-                            for(var j=0;j<4;j++){
-                                if(nearBy[j].getType()=="track"){
-                                    connects[j]=true;
-                                    console.log("j:"+j);
-                                }
-                            }
-                            this.cells[x][y].setConnections(connects);
-                            
-                        }
-                        else if (nearRails ==3){
-                            //find the empty nearby and then make the next two linked
-                             for(var j=0;j<4;j++){
-                                if(nearBy[j].getType()!="track"){
-                                    connects[(j+1)%4]=true;
-                                    connects[(j+2)%4]=true;
-                                }
-                             }
-                             this.cells[x][y].setConnections(connects);
-                        }else if(nearRails==4){
-                            connects[0]=true;
-                            connects[2]=true;
-                            this.cells[x][y].setConnections(connects);
-                        }
-                    }
+//                    if(this.cells[x][y].getType()=="track"){
+//                    }
+                    this.cells[x][y].update(nearBy);
                     
                 }
             }
