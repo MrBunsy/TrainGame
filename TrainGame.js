@@ -75,9 +75,9 @@ var TrainGame = function(div){
                 for(var y=0;y<this.cellsHigh;y++){
                     var nearBy = this.getNeighbours(x,y);
                     
-//                    if(this.cells[x][y].getType()=="track"){
-//                    }
-                    this.cells[x][y].update(nearBy);
+                    if(this.cells[x][y].update(nearBy)){
+                        anythingChanged=true;
+                    }
                     
                 }
             }
