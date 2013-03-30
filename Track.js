@@ -142,13 +142,17 @@ var Track = function(connections){
             this.happy=true;
         }else if(pointAtUs==1){
             connects[pointDirs[0]]=true;
-            
-            if(nearBy>1){
+            if(nearRails==1 && nearDirs[0]!=pointDirs[0]){
+                //one other is near us and not pointing at us
+                connects[nearDirs[0]]=true;
+            }else
+            if(nearRails>1){
                 //there are others nearby, albeit not pointing at us
-                for(var i=0;i<nearBy;i++){
+                for(var i=0;i<4;i++){
                     if(nearDirs[i]!=pointDirs[0]){
                         //point the other side of the rail at the first nearby rail that isn't pointed at us
                         connects[nearDirs[i]]=true;
+                        break;
                     }
                 }
             }else{
