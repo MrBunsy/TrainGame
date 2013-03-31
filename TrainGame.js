@@ -5,12 +5,17 @@
 var TrainGame = function(div,div2){
     var self=this;
     
-    this.div=div;
+    //this.div=div;
     
     this.mainDiv = new DivController(div,1);
+    this.toolBoxDiv = new DivController(div2, 1);
+    
     
     this.width = this.mainDiv.width;
     this.height = this.mainDiv.width;
+    
+    this.toolWidth = this.toolBoxDiv.width;
+    this.toolHeight = this.toolBoxDiv.height;
     
     this.thread=false;
     this.running=false;
@@ -22,7 +27,8 @@ var TrainGame = function(div,div2){
     
     this.state="new";
     
-    
+    this.tools=["track","power","delete"];
+    this.selectedTool="track";
     
     //this.animationController=new AnimationController(this.mainDiv.ctxs[2], 30,this.width,this.height);
     
@@ -34,12 +40,17 @@ var TrainGame = function(div,div2){
     this.cellsHigh = 10;
     this.cellSize=10;
     
+    this.toolsWide=4;
+    this.toolsHigh=4;
+    this.toolsSize=10;
     
     this.generateCellSize=function(cellsWide,cellsHigh){
         this.cellsWide = cellsWide;
         this.cellsHigh = cellsHigh;
         
         this.cellSize=this.width/this.cellsWide;
+        
+        this.toolSize = this.toolWidth/this.toolsWide;
         //this.cellHeighth=this.height/this.cellsHigh;
         
         for(var x=0;x<this.cellsWide;x++){
@@ -141,13 +152,93 @@ var TrainGame = function(div,div2){
             }
             
         }
+        
+        //draw the toolbox
+        this.toolBoxDiv.ctxs[0].clearRect(0,0,this.toolBoxDiv.width+1,this.toolBoxDiv.height+1);
+//        for(var i=0;i<this.tools.length;i++){
+//            this.toolBoxDiv.ctxs[0].strokeRect(i*this.cellSize,0,this.cellSize,this.cellSize);
+//            
+//        }
+
+        //draw a grid
+        for(var x=0;x<this.toolsWide;x++){
+            this.toolBoxDiv.ctxs[0].beginPath();
+            
+            this.toolBoxDiv.ctxs[0].moveTo(Math.floor(this.toolSize*x)+0.5,0);
+            this.toolBoxDiv.ctxs[0].lineTo(Math.floor(this.toolSize*x)+0.5,this.toolHeight+0.5);
+            
+            this.toolBoxDiv.ctxs[0].stroke();
+        }
+        
+        for(var y=0;y<this.toolsHigh;y++){
+            this.toolBoxDiv.ctxs[0].beginPath();
+            
+            this.toolBoxDiv.ctxs[0].moveTo(0,Math.floor(this.toolSize*y)+0.5);
+            this.toolBoxDiv.ctxs[0].lineTo(this.toolWidth+0.5, Math.floor(this.toolSize*y)+0.5);
+            
+            this.toolBoxDiv.ctxs[0].stroke();
+        }
+        
+        for(var i=0;i<this.tools.length;i++){
+            var x=i%this.toolsWide;
+            var y = Math.floor(i/this.toolsWide);
+            
+            this.toolBoxDiv.ctxs[0].save();
+
+            //var blockPos = this.tools[i].pos.multiply(this.toolSize);
+
+            this.toolBoxDiv.ctxs[0].translate(x*this.toolSize+this.toolSize/2, y*this.toolSize+this.toolSize/2);
+            this.toolBoxDiv.ctxs[0].scale(this.toolSize/100,this.toolSize/100);
+            //this.ctxs[0].scale(0.1);
+            
+            if(this.selectedTool==this.tools[i]){
+                this.toolBoxDiv.ctxs[0].fillStyle="rgb(255,255,0)";
+                this.toolBoxDiv.ctxs[0].fillRect(-50,-50,100,100);
+            }
+            
+            //this.tools[x][y].draw(this.toolBoxDiv.ctxs[0]);
+            switch(this.tools[i]){
+                case "track":
+                    var t = new Track();
+                    t.draw(this.toolBoxDiv.ctxs[0]);
+                    break;
+                case "power":
+                    var p = new Power();
+                    p.draw(this.toolBoxDiv.ctxs[0]);
+                    break;
+            }
+
+            this.toolBoxDiv.ctxs[0].restore();
+            
+        }
+        
     }
     //the user has clicked a cell
     this.cellPressed=function(x,y){
-        if(self.cells[x][y].getType()=="track"){
-            self.cells[x][y] = new Cell();
-        }else{
-            self.cells[x][y] = new Track();
+        if(self.cells[x][y].getType()=="empty"){
+            //self.cells[x][y] = new Cell();
+            switch(self.selectedTool){
+                case "track":
+                    self.cells[x][y] = new Track();
+                    break;
+                case "power":
+                    self.cells[x][y] = new Power();
+                    break;
+            }
+        }
+        else{
+            //self.cells[x][y] = new Track();
+            switch(self.selectedTool){
+                case "delete":
+                    self.cells[x][y] = new Cell();
+                    break;
+                case "track":
+                case "power":
+                    if(self.cells[x][y].getType()==self.selectedTool){
+                        self.cells[x][y] = new Cell();
+                    }
+                    break;
+            }
         }
         
         self.updateCells();
@@ -217,6 +308,19 @@ var TrainGame = function(div,div2){
         self.mousePressed=false;
     }
     
+    
+    this.toolPressed=function(mousePos){
+        var x = Math.floor(mousePos.x/self.toolSize);
+        var y = Math.floor(mousePos.y/self.toolSize);
+        
+        var t = x+self.toolsWide*y;
+        if(t<self.tools.length){
+            self.selectedTool = self.tools[t];
+            self.draw();
+        }
+    }
+    
+    
     this.generateCellSize(25,25);
     
 //    this.div.addEventListener("mousedown", this.mouseDown,false);
@@ -226,6 +330,8 @@ var TrainGame = function(div,div2){
     this.mainDiv.setMouseDown(this.mouseDown);
     this.mainDiv.setMouseUp(this.mouseUp);
     this.mainDiv.setMouseMove(this.mouseMove);
+    
+    this.toolBoxDiv.setMouseDown(this.toolPressed);
    
 }
 
