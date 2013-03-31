@@ -50,37 +50,130 @@ var Track = function(connections){
      * b - bottom
      * l - left
      */
+    //drawing a 100x100 rail,centred around 0,0
     this.draw=function(ctx){
-    {
 
-        ctx.lineWidth=10;
+        ctx.save();
+        //ctx.lineWidth=10;
+        
+        //the curved rail's sleepers slightly go over the edge, so clip them!
+        ctx.beginPath();
+        ctx.moveTo(-50,-50);
+        ctx.lineTo(50,-50);
+        ctx.lineTo(50,50);
+        ctx.lineTo(-50,50);
+        ctx.clip();
+        
+        var straight=false;
+        var dirs=[];
+        
+        var distFromEdge = 20;
+        var distFromCentre=50-distFromEdge;
+        var width=10;
+        var sleepers=4;
+        //var sleeperDist=(100-2*distFromEdge)/(sleepers-1);
+        var sleeperDist = 100/4;
+        
+        ctx.lineWidth=width;
+        ctx.lineCap="butt";
         
         //only two connections
-        var angle = -Math.PI/2;
+        //var angle = -Math.PI/2;
         for(var i=0;i<4;i++){
             if(this.connections[i]){
-                ctx.beginPath();
-
-                ctx.moveTo(0,0);
-                ctx.lineTo(50*Math.cos(angle),50*Math.sin(angle));
-
-                ctx.stroke();
+                dirs[0]=i;
+                if(this.connections[(i+2)%4]){
+                    //this is a straight peice of track!
+                    straight=true;
+                    dirs[1]=(i+2)%4;
+                }else{
+                    dirs[1] = this.connections[(i+1)%4] ? (i+1)%4 : (i+3)%4;
+                }
+                break;
+//                ctx.beginPath();
+//
+//                ctx.moveTo(0,0);
+//                ctx.lineTo(50*Math.cos(angle),50*Math.sin(angle));
+//
+//                ctx.stroke();
 
             }
-            angle+=Math.PI/2;
+            //angle+=Math.PI/2;
         }
-            
-            
-    //            if((connects[0] && connects[2]) || (connects[1] && connects[3])){
-    //                //straight
-    //                
-    //            }else{
-    //                //curve
-    //                
-    //            }
         
+        var railColour="rgb(128,128,128)";
+        var sleeperColour="rgb(96,64,32)";
+        
+        var from=[];
+        var to=[];
+        if(straight){
+            if(dirs[0]!=0){
+                //horizontal
+                ctx.rotate(Math.PI/2);
+            }
+            
+            //sleepers
+            ctx.strokeStyle=sleeperColour;
+            var y=-distFromCentre;
+            for(var i=0;i<sleepers;i++){
+                ctx.beginPath();
+                ctx.moveTo(-50,-50+sleeperDist/2 + sleeperDist*i);
+                ctx.lineTo(50,-50+sleeperDist/2 + sleeperDist*i);
+                ctx.stroke();
+            }
+            
+            //the two rails:
+            ctx.strokeStyle=railColour;
+            ctx.beginPath();
+            ctx.moveTo(-distFromCentre,-50);
+            ctx.lineTo(-distFromCentre,50);
+
+            ctx.moveTo(distFromCentre,-50);
+            ctx.lineTo(distFromCentre,50);
+            ctx.stroke();
+            
+        }else{
+            //curve!
+            var offset = 0;
+            if((dirs[0]+1)%4 != dirs[1]){
+                //the first dir is NOT the first one in our dirs array, going clockwise
+                offset = -Math.PI/2;
+            }
+            
+            var angle = dirs[0]*Math.PI/2 + offset;
+            ctx.rotate(angle);
+            //draw a curve going from top to right, and it'll be rotated accordingly
+            
+            var dAngle = (Math.PI/2)/(sleepers);
+            
+            ctx.strokeStyle=sleeperColour;
+            
+            var topCorner=50;
+            var length = 100;
+            
+            for(var i=0;i<sleepers;i++){
+                ctx.beginPath();
+                //top right
+                ctx.moveTo(topCorner,-topCorner);
+                ctx.lineTo(topCorner + length*Math.cos(Math.PI/2 + dAngle/2 + dAngle*i), -topCorner + length*Math.sin(Math.PI/2 + dAngle/2 + dAngle*i))
+                ctx.stroke();
+            }
+            
+            ctx.strokeStyle=railColour;
+            ctx.beginPath();
+            ctx.arc(50,-50,distFromEdge,Math.PI,Math.PI/2,true);
+            ctx.stroke();
+            
+            
+            ctx.beginPath();
+            ctx.arc(50,-50,100-distFromEdge,Math.PI,Math.PI/2,true);
+            ctx.stroke();
+            
+        }
+        
+        ctx.restore();
     }
-    }
+    
     
     //are we happily connecting two other rails both pointing at us?
     this.happy=false;
@@ -116,10 +209,8 @@ var Track = function(connections){
             //check that the rails pointing at us are the same as the old ones
             for(var i=0;i<4;i++){
                 if(this.connections[i] && pointDirs.indexOf(i)<0){
-                   // if((this.connections[i] && pointDirs.indexOf(i)>-1)){
-                        //if something in our connections is no longer pointing at us, we don't want to be happy naymore
-                        this.happy=false;
-                   // }
+                    //if something in our connections is no longer pointing at us, we don't want to be happy naymore
+                    this.happy=false;
                 }
             }
             if(this.happy){
@@ -157,7 +248,7 @@ var Track = function(connections){
                 }
             }else{
                 //be striaght
-                 connects[(pointDirs[0]+2)%4]=true;
+                connects[(pointDirs[0]+2)%4]=true;
             }
             changed = this.setConnections(connects);
         }else{
@@ -170,66 +261,13 @@ var Track = function(connections){
             if(nearRails>=2){
                 //link the two together
                
-               connects[nearDirs[0]]=true;
-               connects[nearDirs[1]]=true;
+                connects[nearDirs[0]]=true;
+                connects[nearDirs[1]]=true;
                
                 changed = this.setConnections(connects);
             }
             
         }
-        
-//        //console.log("x:"+x+",y:"+y+" nearrails:"+nearRails);
-//        if(nearRails==1){
-//            for(var j=0;j<4;j++){
-//                if(nearBy[j].getType()=="track"){
-//                    connects[j]=true;
-//                    connects[(j+2)%4]=true;
-//                }
-//            }
-//            this.setConnections(connects);
-//        }else
-////        if(nearRails==2){
-////            //link the two together
-////            for(var j=0;j<4;j++){
-////                if(nearBy[j].getType()=="track"){
-////                    connects[j]=true;
-////                }
-////            }
-////            this.setConnections(connects);
-////
-////        }else 
-//            if (nearRails >=2 && this.prevNearRails < 2){
-//            //find how many nearby point towards this rail
-//            
-//            
-//            //TODO compare this with minecraft
-//            if(pointAtUs==1){
-//                //if only one, link to that and be straight
-//                connects[dirs[0]]=true;
-//                connects[(dirs[0]+2)%4]=true;
-//            }else if(pointAtUs == 2){
-//                //if only two, link those
-//                connects[dirs[0]]=true;
-//                connects[dirs[1]]=true;
-//            }else{
-//                //if three, use the logic:
-//            
-//                //find the empty nearby and then make the next two linked
-//                for(var j=0;j<4;j++){
-//                    if(nearBy[j].getType()!="track"){
-//                        connects[(j+1)%4]=true;
-//                        connects[(j+2)%4]=true;
-//                        break;
-//                    }
-//                }
-//            }
-//            this.setConnections(connects);
-//        }
-        //        else if(nearRails==4 && this.prevNearRails < 2){
-        //            connects[0]=true;
-        //            connects[2]=true;
-        //            this.setConnections(connects);
-        //        }
         
         this.prevNearRails=nearRails;
         

@@ -28,8 +28,8 @@ var TrainGame = function(div){
     
     for(var i=0;i<1;i++){
         this.canvases[i] = document.createElement("canvas");
-        this.canvases[i].width=this.width;
-        this.canvases[i].height=this.height;
+        this.canvases[i].width=this.width+1;
+        this.canvases[i].height=this.height+1;
         this.canvases[i].style.position="absolute";
         this.canvases[i].style.top=this.pos.y+1;
         this.canvases[i].style.left=this.pos.x+1;
@@ -117,13 +117,13 @@ var TrainGame = function(div){
     this.draw=function(){
         
         this.ctxs[0].clearRect(0,0,this.width,this.height);
-        
+        this.ctxs[0].lineWidth=0.5;
         //draw a grid
         for(var x=0;x<this.cellsWide+1;x++){
             this.ctxs[0].beginPath();
             
-            this.ctxs[0].moveTo(this.cellSize*x,0);
-            this.ctxs[0].lineTo(this.cellSize*x,this.height);
+            this.ctxs[0].moveTo(Math.round(this.cellSize*x)+0.5,0);
+            this.ctxs[0].lineTo(Math.round(this.cellSize*x)+0.5,this.height+0.5);
             
             this.ctxs[0].stroke();
         }
@@ -131,8 +131,8 @@ var TrainGame = function(div){
         for(var y=0;y<this.cellsHigh+1;y++){
             this.ctxs[0].beginPath();
             
-            this.ctxs[0].moveTo(0,this.cellSize*y);
-            this.ctxs[0].lineTo(this.width, this.cellSize*y);
+            this.ctxs[0].moveTo(0,Math.round(this.cellSize*y)+0.5);
+            this.ctxs[0].lineTo(this.width+0.5, Math.round(this.cellSize*y)+0.5);
             
             this.ctxs[0].stroke();
         }
