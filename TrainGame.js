@@ -186,23 +186,58 @@ var TrainGame = function(div){
         return new Vector(x,y);
     }
     
-    this.mouseDown=function(e){
-        var mousePos = self.getMousePos(e);
-        var x = Math.floor(mousePos.x/self.cellSize);
-        var y = Math.floor(mousePos.y/self.cellSize);
-        
+    //the user has clicked a cell
+    this.cellPressed=function(x,y){
         if(self.cells[x][y].getType()=="track"){
             self.cells[x][y] = new Cell();
         }else{
             self.cells[x][y] = new Track();
         }
+        
         self.updateCells();
         self.draw();
     }
     
-    this.generateCellSize(10,10);
+    this.mousePressed=false;
+    this.mouseLastCell=new Coords(-1,-1);
+    
+    this.mouseDown=function(e){
+        var mousePos = self.getMousePos(e);
+        var x = Math.floor(mousePos.x/self.cellSize);
+        var y = Math.floor(mousePos.y/self.cellSize);
+        
+        self.cellPressed(x,y);
+        
+        self.mouseLastCell.x=x;
+        self.mouseLastCell.y=y;
+        self.mousePressed=true;
+    }
+    
+    this.mouseMove=function(e){
+        var mousePos = self.getMousePos(e);
+        var x = Math.floor(mousePos.x/self.cellSize);
+        var y = Math.floor(mousePos.y/self.cellSize);
+        
+        if(self.mousePressed){
+            //mouse is being dragged
+            if(x!=self.mouseLastCell.x || y !=self.mouseLastCell.y){
+                //now over a different cell
+                self.mouseLastCell.x=x;
+                self.mouseLastCell.y=y;
+                self.cellPressed(x,y);
+            }
+        }
+    }
+    
+    this.mouseUp=function(e){
+        self.mousePressed=false;
+    }
+    
+    this.generateCellSize(25,25);
     
     this.div.addEventListener("mousedown", this.mouseDown,false);
+    this.div.addEventListener("mouseup", this.mouseUp,false);
+    this.div.addEventListener("mousemove", this.mouseMove,false);
    
 }
 

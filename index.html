@@ -18,7 +18,7 @@
         <script type="text/javascript" src="Cell.js"></script>
     </head>
     <body>
-        <div id="trainGameDiv" style="width:600px;height:600px;"></div>
+        <div id="trainGameDiv" style="width:800px;height:800px;"></div>
         
         <script>
             var trains = new TrainGame(document.getElementById("trainGameDiv"));
@@ -27,12 +27,12 @@
 //            trains.blocks.push(new Track(new Vector(6,5), null));
 //            trains.blocks.push(new Track(new Vector(7,5), null));
 //            trains.blocks.push(new Track(new Vector(7,6), null));
-            trains.cells[5][5] = new Track();
-            trains.cells[6][5] = new Track();
-            trains.cells[7][5] = new Track();
-            trains.cells[7][6] = new Track();
-            
-            trains.updateCells();
+//            trains.cells[5][5] = new Track();
+//            trains.cells[6][5] = new Track();
+//            trains.cells[7][5] = new Track();
+//            trains.cells[7][6] = new Track();
+//            
+//            trains.updateCells();
             
             trains.draw();
         </script>
