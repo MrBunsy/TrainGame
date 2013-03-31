@@ -177,6 +177,7 @@ var Track = function(connections){
     
     //are we happily connecting two other rails both pointing at us?
     this.happy=false;
+    this.previousPower=false;
     
     this.getHappy=function(){
         return this.happy;
@@ -184,28 +185,35 @@ var Track = function(connections){
     
     this.update=function(nearBy){
      
+     
+        var powered=false;
+        
+        //find out how many nearby rails point towards us
+        var pointAtUs=0;
+        var pointDirs=[];
+     
+        //find how many rails nearby, that aren't yet in an ideal position
         var nearRails = 0;
         var nearDirs = [];
-        //find how many rails nearby, that aren't yet in an ideal position
+        
         for(var i=0;i<4;i++){
             if(nearBy[i].getType()=="track" && !nearBy[i].getHappy()){
                 nearRails++;
                 nearDirs.push(i);
             }
-        }
-        
-        //find out how many nearby rails point towards us
-        var pointAtUs=0;
-        var pointDirs=[];
-        for(var i=0;i<4;i++){
             if(nearBy[i].getType()=="track" && nearBy[i].getConnections()[(i+2)%4]){
                 pointAtUs++;
                 pointDirs.push(i);
             }
+            
+            if(nearBy[i].providesPower()){
+                powered=true;
+            }
         }
         
         //if this rail was previously happy, and is still connected to the ones it was, don't override it with the south-east rule
-        if(this.happy && pointAtUs>=2){
+        //AND the power status is still the same
+        if(this.happy && pointAtUs>=2 && powered==this.previousPower){
             //check that the rails pointing at us are the same as the old ones
             for(var i=0;i<4;i++){
                 if(this.connections[i] && pointDirs.indexOf(i)<0){
@@ -227,8 +235,19 @@ var Track = function(connections){
         
         if(pointAtUs>=2){
             //enough stuff pointing directly at us
-            connects[pointDirs[0]]=true;
-            connects[pointDirs[1]]=true;
+            
+            if(powered){
+                //work backwards, anti-clockwise
+                for(var i=pointAtUs-1;i>=pointAtUs-2;i--){
+                    connects[pointDirs[i]]=true;
+                }
+            }else{
+                //work clockwise
+                connects[pointDirs[0]]=true;
+                connects[pointDirs[1]]=true;
+            }
+            
+            
             changed = this.setConnections(connects);
             this.happy=true;
         }else if(pointAtUs==1){
@@ -270,6 +289,7 @@ var Track = function(connections){
         }
         
         this.prevNearRails=nearRails;
+        this.previousPower=powered;
         
         return changed;
     }
