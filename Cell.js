@@ -12,6 +12,8 @@ var Cell = function(){
     
     /*
      * "track"
+     * "empty"
+     * "power"
      */
     this.getType=function(){
         return "empty"
@@ -19,6 +21,10 @@ var Cell = function(){
     
     this.update=function(nearBy){
         //return true if anything changed
+        return false;
+    }
+    
+    this.providesPower=function(){
         return false;
     }
 }

@@ -274,6 +274,10 @@ var Track = function(connections){
         return changed;
     }
     
+    this.providesPower=function(){
+        return false;
+    }
+    
     this.prevNearRails=0;
     
     //    if(connections!=null){

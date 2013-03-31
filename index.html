@@ -19,9 +19,10 @@
     </head>
     <body>
         <div id="trainGameDiv" style="width:800px;height:800px;"></div>
+        <div id="trainGameDiv2" style="width:200px;height:200px;"></div>
         
         <script>
-            var trains = new TrainGame(document.getElementById("trainGameDiv"));
+            var trains = new TrainGame(document.getElementById("trainGameDiv"),document.getElementById("trainGameDiv2"));
             
 //            trains.blocks.push(new Track(new Vector(5,5), null));
 //            trains.blocks.push(new Track(new Vector(6,5), null));
