@@ -7,12 +7,14 @@ var Repeater = function(){
     
     this.on=false;
     this.delay=0;
+    //the time when power was first provided
+    this.time=0;
     
      //will always draw as a 100x100 with the top left at -50,-50
     this.draw=function(ctx){
         var colour = this.on ? "rgb(255,0,0)" : "rgb(0,0,0)";
         
-        ctx.lineWidth=5;
+        ctx.lineWidth=10;
         
         ctx.strokeStyle=colour;
         //line to output
@@ -41,22 +43,36 @@ var Repeater = function(){
     this.incrementDelay=function(){
         this.delay++;
         this.delay%=4;
+        this.time=0;
         return this.delay==0;
     }
     
-    this.update=function(nearBy,dT){
+    this.update=function(nearBy,time){
         //return true if anything changed
+        
+        
         
         var change=false;
         var oldOn = this.on;
+        
+        var powered=false;
         this.on=false;
         
         for(var i=0;i<4;i++){
             if(i!=1){
                 if(nearBy[i].providesPower(i) > 0){
-                    this.on=true;
+                    powered=true;
                 }
             }
+        }
+        
+        if(time >=this.time+this.delay && powered){
+            this.on=true;
+        }
+        
+        //if we have no power, reset the delay back to zero
+        if(!powered || time==0){
+            this.time=time;
         }
         
         change = change || this.on!=oldOn

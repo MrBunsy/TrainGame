@@ -20,7 +20,7 @@ var TrainGame = function(div,div2){
     this.thread=false;
     this.running=false;
     
-    this.framerate=30;
+    this.framerate=10;
     
     //interval is in milliseconds
     this.interval=1000/this.framerate;
@@ -75,6 +75,7 @@ var TrainGame = function(div,div2){
     this.update=function(){
         this.time+=this.dt;
         this.updateCells();
+        this.draw();
     }
     
     //run through everything and update everything
@@ -369,6 +370,8 @@ var TrainGame = function(div,div2){
     this.mainDiv.setMouseMove(this.mouseMove);
     
     this.toolBoxDiv.setMouseDown(this.toolPressed);
+    
+    this.start();
    
 }
 
