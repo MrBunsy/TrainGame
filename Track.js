@@ -183,6 +183,9 @@ var Track = function(){
         return this.happy;
     }
     
+    //is this track one that will change direction if it is powered?
+    this.canReceivePower=false;
+    
     this.update=function(nearBy){
      
      
@@ -211,6 +214,18 @@ var Track = function(){
             }
         }
         
+        var oldReceiverPower=this.canReceivePower;
+        this.canReceivePower=false;
+        
+        if(pointAtUs>2){
+            //power didn't used to be able to affect this peice of track'
+            if(!oldReceiverPower){
+                changed=true;
+            }
+            //power will affect this peice of track, so set this
+            this.canReceivePower=true;
+        }
+        
         //if this rail was previously happy, and is still connected to the ones it was, don't override it with the south-east rule
         //AND the power status is still the same
         if(this.happy && pointAtUs>=2 && powered==this.previousPower){
@@ -228,6 +243,8 @@ var Track = function(){
             
         }
         
+        
+        
         var connects = [false,false,false,false];
         var changed = false;
         
@@ -235,6 +252,7 @@ var Track = function(){
         
         if(pointAtUs>=2){
             //enough stuff pointing directly at us
+            
             
             if(powered){
                 //work backwards, anti-clockwise
@@ -248,7 +266,7 @@ var Track = function(){
             }
             
             
-            changed = this.setConnections(connects);
+            changed = this.setConnections(connects) || changed;
             this.happy=true;
         }else if(pointAtUs==1){
             connects[pointDirs[0]]=true;
@@ -269,13 +287,13 @@ var Track = function(){
                 //be striaght
                 connects[(pointDirs[0]+2)%4]=true;
             }
-            changed = this.setConnections(connects);
+            changed = this.setConnections(connects) || changed;
         }else{
             //0 pointing at us
             if(nearRails==1){
                 connects[nearDirs[0]]=true;
                 connects[(nearDirs[0]+2)%4]=true;
-                changed = this.setConnections(connects);
+                changed = this.setConnections(connects) || changed;
             }else
             if(nearRails>=2){
                 //link the two together
@@ -283,7 +301,7 @@ var Track = function(){
                 connects[nearDirs[0]]=true;
                 connects[nearDirs[1]]=true;
                
-                changed = this.setConnections(connects);
+                changed = this.setConnections(connects) || changed;
             }
             
         }
@@ -300,7 +318,7 @@ var Track = function(){
     
     //TODO
     this.receivesPower=function(){
-        return false;
+        return this.canReceivePower;
     }
     
     this.prevNearRails=0;
