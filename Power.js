@@ -25,6 +25,10 @@ var Power = function(){
     }
     
     this.providesPower=function(){
-        return true;
+        return 16;
+    }
+    
+    this.receivesPower=function(){
+        return false;
     }
 }

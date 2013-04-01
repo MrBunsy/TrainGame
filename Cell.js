@@ -24,7 +24,12 @@ var Cell = function(){
         return false;
     }
     
+    //returns int, 0 = no power, increasing numbers is increasing quantity
     this.providesPower=function(){
+        return 0;
+    }
+    
+    this.receivesPower=function(){
         return false;
     }
 }

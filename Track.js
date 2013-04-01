@@ -3,7 +3,7 @@
  */
 
 
-var Track = function(connections){
+var Track = function(){
     
     this.connections=[false,false,false,false];
     
@@ -206,7 +206,7 @@ var Track = function(connections){
                 pointDirs.push(i);
             }
             
-            if(nearBy[i].providesPower()){
+            if(nearBy[i].providesPower() > 0){
                 powered=true;
             }
         }
@@ -295,6 +295,11 @@ var Track = function(connections){
     }
     
     this.providesPower=function(){
+        return 0;
+    }
+    
+    //TODO
+    this.receivesPower=function(){
         return false;
     }
     

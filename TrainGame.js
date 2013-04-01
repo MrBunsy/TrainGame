@@ -27,7 +27,7 @@ var TrainGame = function(div,div2){
     
     this.state="new";
     
-    this.tools=["track","power","delete"];
+    this.tools=["track","power","wire","delete"];
     this.selectedTool="track";
     
     //this.animationController=new AnimationController(this.mainDiv.ctxs[2], 30,this.width,this.height);
@@ -206,6 +206,11 @@ var TrainGame = function(div,div2){
                     var p = new Power();
                     p.draw(this.toolBoxDiv.ctxs[0]);
                     break;
+                case "wire":
+                    var w = new Wire();
+                    w.setConnections([true,true,true,true]);
+                    w.draw(this.toolBoxDiv.ctxs[0]);
+                    break;
             }
 
             this.toolBoxDiv.ctxs[0].restore();
@@ -224,6 +229,9 @@ var TrainGame = function(div,div2){
                 case "power":
                     self.cells[x][y] = new Power();
                     break;
+                case "wire":
+                    self.cells[x][y] = new Wire();
+                    break;
             }
         }
         else{
@@ -233,6 +241,7 @@ var TrainGame = function(div,div2){
                     self.cells[x][y] = new Cell();
                     break;
                 case "track":
+                case "wire":
                 case "power":
                     if(self.cells[x][y].getType()==self.selectedTool){
                         self.cells[x][y] = new Cell();
