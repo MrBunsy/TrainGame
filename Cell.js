@@ -22,7 +22,10 @@ var Cell = function(){
         return "empty"
     }
     
-    this.update=function(nearBy,dT){
+    //nearBy = array of cells directly next to [top, right, bottom, left]
+    //time = current time of simulation
+    //onTop = array of any objects currently on top of this cell (eg minecart)
+    this.update=function(nearBy,time,onTop){
         //return true if anything changed
         return false;
     }

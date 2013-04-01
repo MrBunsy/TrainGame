@@ -1,5 +1,12 @@
 /* 
  * Copyright Luke Wallin 2012
+ * 
+ * TODO:
+ * 
+ * buttons + hand tool for pressing buttons
+ * levers
+ * logic blocks
+ * 
  */
 
 var TrainGame = function(div,div2){
