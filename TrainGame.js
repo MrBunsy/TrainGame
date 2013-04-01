@@ -79,7 +79,7 @@ var TrainGame = function(div,div2){
             
             count++;
         //check count so we can't get stuck in inifinite loop
-        }while(anythingChanged && count < 10)
+        }while(anythingChanged && count < 100)
         
     }
     
