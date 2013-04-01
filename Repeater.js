@@ -66,14 +66,17 @@ var Repeater = function(){
             }
         }
         
+        
+        //if we have no power, reset the delay back to zero
+        if(!powered || this.time==0){
+            this.time=time;
+        }
+        
         if(time >=this.time+this.delay && powered){
             this.on=true;
         }
         
-        //if we have no power, reset the delay back to zero
-        if(!powered || time==0){
-            this.time=time;
-        }
+        
         
         change = change || this.on!=oldOn
         

@@ -7,6 +7,9 @@ var Track = function(){
     
     this.connections=[false,false,false,false];
     
+    //powered, detect, normal
+    this.trackType="normal";
+    
     //returns true if new connections are different to old
     this.setConnections=function(connections){
         
@@ -37,6 +40,22 @@ var Track = function(){
         return "track"
     }
     
+    //return true when we've got back to normal rail
+    this.incrementType=function(){
+        if(this.trackType=="normal"){
+            this.trackType="powered";
+            return false;
+        }
+        if(this.trackType=="powered"){
+            this.trackType="detect";
+            return false;
+        }
+        
+        if(this.trackType=="detect"){
+            this.trackType="normal";
+            return true;
+        }
+    }
     
     this.getConnections=function(){
         return this.connections;
@@ -103,6 +122,7 @@ var Track = function(){
         
         var railColour="rgb(128,128,128)";
         var sleeperColour="rgb(96,64,32)";
+        var powerColour="rgb(255,128,0)";
         
         var from=[];
         var to=[];
@@ -131,6 +151,22 @@ var Track = function(){
             ctx.moveTo(distFromCentre,-50);
             ctx.lineTo(distFromCentre,50);
             ctx.stroke();
+            
+            switch(this.trackType){
+                case "powered":
+                    //orange third rail
+                    ctx.strokeStyle=powerColour;
+                    ctx.beginPath();
+                    ctx.moveTo(0,-50);
+                    ctx.lineTo(0,50);
+                    ctx.stroke();
+                    break;
+                case "detect":
+                    //grey square in centre
+                    ctx.fillStyle=railColour;
+                    ctx.fillRect(-20,-20,40,40);
+                    break;
+            }
             
         }else{
             //curve!

@@ -2,24 +2,16 @@
  * Copyright Luke Wallin 2012
  */
 
-//this is an empty cell also acting as a fake interface - so I know what methods will need to be implemented
-var Cell = function(){
-    
+
+var Block = function(){
     //will always draw as a 100x100 with the top left at -50,-50
     this.draw=function(ctx){
-        
+        ctx.fillStyle="rgb(96,64,32)";
+        ctx.fillRect(-50,-50,100,100);
     }
     
-    /*
-     * "track"
-     * "empty"
-     * "power"
-     * "wire"
-     * "repeater"
-     * "block"
-     */
     this.getType=function(){
-        return "empty"
+        return "block"
     }
     
     this.update=function(nearBy,dT){

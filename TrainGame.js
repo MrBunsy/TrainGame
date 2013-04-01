@@ -30,7 +30,7 @@ var TrainGame = function(div,div2){
     
     //this.state="new";
     
-    this.tools=["track","power","wire","repeater","delete"];
+    this.tools=["track","power","wire","repeater","block","delete"];
     this.selectedTool="track";
     
     //this.animationController=new AnimationController(this.mainDiv.ctxs[2], 30,this.width,this.height);
@@ -126,6 +126,30 @@ var TrainGame = function(div,div2){
     
     this.cells=[];
     
+    this.getNewCell=function(name){
+        switch(name){
+            case "track":
+               return  new Track();
+                break;
+            case "power":
+               return  new Power();
+                break;
+            case "wire":
+               return  new Wire();
+                break;
+            case "repeater":
+               return  new Repeater();
+                break;
+            case "block":
+               return  new Block();
+                break;
+            default:
+                return new Cell();
+                break;
+                
+        }
+    }
+    
     this.draw=function(){
         
         this.mainDiv.ctxs[0].clearRect(0,0,this.width+1,this.height+1);
@@ -213,26 +237,17 @@ var TrainGame = function(div,div2){
                 this.toolBoxDiv.ctxs[0].fillRect(-50,-50,100,100);
             }
             
-            //this.tools[x][y].draw(this.toolBoxDiv.ctxs[0]);
+            var cell = this.getNewCell(this.tools[i]);
+            
+            //anything special for any of the tools' icons?
             switch(this.tools[i]){
-                case "track":
-                    var t = new Track();
-                    t.draw(this.toolBoxDiv.ctxs[0]);
-                    break;
-                case "power":
-                    var p = new Power();
-                    p.draw(this.toolBoxDiv.ctxs[0]);
-                    break;
                 case "wire":
-                    var w = new Wire();
-                    w.setConnections([true,true,true,true]);
-                    w.draw(this.toolBoxDiv.ctxs[0]);
-                    break;
-                case "repeater":
-                    var r = new Repeater();
-                    r.draw(this.toolBoxDiv.ctxs[0]);
+                    cell.setConnections([true,true,true,true]);
                     break;
             }
+            
+            cell.draw(this.toolBoxDiv.ctxs[0]);
+            
 
             this.toolBoxDiv.ctxs[0].restore();
             
@@ -244,24 +259,19 @@ var TrainGame = function(div,div2){
         if(self.cells[x][y].getType()=="empty"){
             //self.cells[x][y] = new Cell();
             switch(self.selectedTool){
-                case "track":
-                    self.cells[x][y] = new Track();
+                case "delete":
+                    //don't do anything on an empty cell with the delete tool
                     break;
-                case "power":
-                    self.cells[x][y] = new Power();
-                    break;
-                case "wire":
-                    self.cells[x][y] = new Wire();
-                    break;
-                case "repeater":
-                    self.cells[x][y] = new Repeater();
+                default:
+                    self.cells[x][y] = this.getNewCell(self.selectedTool);
                     break;
             }
         }
         else{
-            //self.cells[x][y] = new Track();
+            //pressed a cell with something already tehre
             switch(self.selectedTool){
                 case "delete":
+                    //empty this cell
                     self.cells[x][y] = new Cell();
                     break;
                 case "repeater":
@@ -271,7 +281,15 @@ var TrainGame = function(div,div2){
                         self.cells[x][y] = new Cell();
                     }
                     break;
+                case "track":
+                    //go through the different types of track
+                    if(self.cells[x][y].incrementType()){
+                        //if it's gone back to normal track, remove it
+                        self.cells[x][y] = new Cell();
+                    }
+                    break;
                 default:
+                    //remove whatever it was
                     if(self.cells[x][y].getType()==self.selectedTool){
                         self.cells[x][y] = new Cell();
                     }
