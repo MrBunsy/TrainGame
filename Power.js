@@ -19,16 +19,16 @@ var Power = function(){
         return "power"
     }
     
-    this.update=function(nearBy){
+    this.update=function(nearBy,dT){
         //return true if anything changed
         return false;
     }
     
-    this.providesPower=function(){
+    this.providesPower=function(ourPos){
         return 16;
     }
     
-    this.receivesPower=function(){
+    this.receivesPower=function(ourPos){
         return false;
     }
 }

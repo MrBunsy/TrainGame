@@ -22,12 +22,15 @@ var TrainGame = function(div,div2){
     
     this.framerate=30;
     
+    //interval is in milliseconds
     this.interval=1000/this.framerate;
+    //time difference, in seconds between each frame
     this.dt = this.interval/1000;
+    this.time=0;
     
-    this.state="new";
+    //this.state="new";
     
-    this.tools=["track","power","wire","delete"];
+    this.tools=["track","power","wire","repeater","delete"];
     this.selectedTool="track";
     
     //this.animationController=new AnimationController(this.mainDiv.ctxs[2], 30,this.width,this.height);
@@ -61,6 +64,19 @@ var TrainGame = function(div,div2){
         }
     }
     
+    
+    this.start=function(){
+        //little hack so that when this.update is called 'this' works as you expect
+        this.thread = setInterval(function(){
+                self.update.call(self)
+            }, this.interval);
+    }
+    
+    this.update=function(){
+        this.time+=this.dt;
+        this.updateCells();
+    }
+    
     //run through everything and update everything
     this.updateCells=function(){
         var anythingChanged=false;
@@ -71,7 +87,7 @@ var TrainGame = function(div,div2){
                 for(var y=0;y<this.cellsHigh;y++){
                     var nearBy = this.getNeighbours(x,y);
                     
-                    if(this.cells[x][y].update(nearBy)){
+                    if(this.cells[x][y].update(nearBy,this.time)){
                         anythingChanged=true;
                     }
                 }
@@ -211,6 +227,10 @@ var TrainGame = function(div,div2){
                     w.setConnections([true,true,true,true]);
                     w.draw(this.toolBoxDiv.ctxs[0]);
                     break;
+                case "repeater":
+                    var r = new Repeater();
+                    r.draw(this.toolBoxDiv.ctxs[0]);
+                    break;
             }
 
             this.toolBoxDiv.ctxs[0].restore();
@@ -232,6 +252,9 @@ var TrainGame = function(div,div2){
                 case "wire":
                     self.cells[x][y] = new Wire();
                     break;
+                case "repeater":
+                    self.cells[x][y] = new Repeater();
+                    break;
             }
         }
         else{
@@ -240,9 +263,14 @@ var TrainGame = function(div,div2){
                 case "delete":
                     self.cells[x][y] = new Cell();
                     break;
-                case "track":
-                case "wire":
-                case "power":
+                case "repeater":
+                    //increment the delay of the repeater
+                    if(self.cells[x][y].incrementDelay()){
+                        //if it's gone back to zero, remove it
+                        self.cells[x][y] = new Cell();
+                    }
+                    break;
+                default:
                     if(self.cells[x][y].getType()==self.selectedTool){
                         self.cells[x][y] = new Cell();
                     }

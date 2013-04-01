@@ -186,7 +186,7 @@ var Track = function(){
     //is this track one that will change direction if it is powered?
     this.canReceivePower=false;
     
-    this.update=function(nearBy){
+    this.update=function(nearBy,dT){
      
      
         var powered=false;
@@ -209,7 +209,7 @@ var Track = function(){
                 pointDirs.push(i);
             }
             
-            if(nearBy[i].providesPower() > 0){
+            if(nearBy[i].providesPower(i) > 0){
                 powered=true;
             }
         }
@@ -312,12 +312,12 @@ var Track = function(){
         return changed;
     }
     
-    this.providesPower=function(){
+    this.providesPower=function(ourPos){
         return 0;
     }
     
     //TODO
-    this.receivesPower=function(){
+    this.receivesPower=function(ourPos){
         return this.canReceivePower;
     }
     

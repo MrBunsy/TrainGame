@@ -14,22 +14,25 @@ var Cell = function(){
      * "track"
      * "empty"
      * "power"
+     * "wire"
+     * "repeater"
      */
     this.getType=function(){
         return "empty"
     }
     
-    this.update=function(nearBy){
+    this.update=function(nearBy,dT){
         //return true if anything changed
         return false;
     }
     
     //returns int, 0 = no power, increasing numbers is increasing quantity
-    this.providesPower=function(){
+    this.providesPower=function(ourPos){
         return 0;
     }
     
-    this.receivesPower=function(){
+    //ourPos is our position relative to them.  Eg, 2 = they are above us
+    this.receivesPower=function(ourPos){
         return false;
     }
 }

@@ -65,7 +65,7 @@ var Wire = function(){
         return "wire"
     }
     
-    this.update=function(nearBy){
+    this.update=function(nearBy,dT){
         //return true if anything changed
         
         var changed=false;
@@ -76,13 +76,13 @@ var Wire = function(){
         
         for(var i=0;i<4;i++){
             //check for nearby power
-            if(nearBy[i].providesPower()-1 > this.power){
+            if(nearBy[i].providesPower(i)-1 > this.power){
                 //this is now powered!
-                this.power=nearBy[i].providesPower()-1;
+                this.power=nearBy[i].providesPower(i)-1;
                 connects[i]=true;
             }
             
-            if(nearBy[i].receivesPower()){
+            if(nearBy[i].receivesPower(i)){
                 connects[i]=true;
             }
         }
@@ -96,11 +96,11 @@ var Wire = function(){
         return changed;
     }
     
-    this.providesPower=function(){
+    this.providesPower=function(ourPos){
         return this.power;
     }
     
-    this.receivesPower=function(){
+    this.receivesPower=function(ourPos){
         return true;
     }
 }
