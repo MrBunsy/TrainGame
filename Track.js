@@ -122,7 +122,7 @@ var Track = function(){
         
         var railColour="rgb(128,128,128)";
         var sleeperColour="rgb(96,64,32)";
-        var powerColour="rgb(255,128,0)";
+        var powerColour= this.powered ? "rgb(255,128,0)" : "rgb(128,64,0)";
         
         var from=[];
         var to=[];
@@ -219,12 +219,13 @@ var Track = function(){
         return this.happy;
     }
     
+    this.powered=false;
     //is this track one that will change direction if it is powered?
     this.canReceivePower=false;
     
     this.update=function(nearBy,dT){
      
-     
+        var oldPowered = this.powered;
         var powered=false;
         
         //find out how many nearby rails point towards us
@@ -249,6 +250,8 @@ var Track = function(){
                 powered=true;
             }
         }
+        
+        this.powered=powered;
         
         var oldReceiverPower=this.canReceivePower;
         this.canReceivePower=false;
@@ -283,6 +286,10 @@ var Track = function(){
         
         var connects = [false,false,false,false];
         var changed = false;
+        
+        if(this.powered!=oldPowered){
+            changed = true;
+        }
         
         this.happy=false;
         
