@@ -1,5 +1,8 @@
 /* 
  * Copyright Luke Wallin 2012
+ * 
+ * idea - when jumping across a set of 'points' how about some sparks?
+ * 
  */
 
 
@@ -10,5 +13,4 @@ var Cart = function(x,y,dir){
     this.y=y;
     
     this.speed=0;
-    this.momentum=0;
 }

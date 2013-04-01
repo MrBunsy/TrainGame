@@ -353,8 +353,8 @@ var Track = function(){
     }
     
     //TODO
-    this.receivesPower=function(ourPos){
-        return this.canReceivePower;
+    this.connectsPower=function(ourPos){
+        return this.canReceivePower || this.trackType=="powered" || this.trackType=="detect";
     }
     
     this.prevNearRails=0;

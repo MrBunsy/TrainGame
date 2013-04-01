@@ -25,7 +25,7 @@ var Block = function(){
     }
     
     //ourPos is our position relative to them.  Eg, 2 = they are above us
-    this.receivesPower=function(ourPos){
+    this.connectsPower=function(ourPos){
         return false;
     }
 }

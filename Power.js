@@ -28,7 +28,7 @@ var Power = function(){
         return 16;
     }
     
-    this.receivesPower=function(ourPos){
+    this.connectsPower=function(ourPos){
         return false;
     }
 }

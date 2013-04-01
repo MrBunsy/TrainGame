@@ -93,8 +93,9 @@ var Repeater = function(){
     }
     
     //ourPos is our position relative to them.  Eg, 2 = they are above us
-    this.receivesPower=function(ourPos){
+    this.connectsPower=function(ourPos){
         //if they are anywhere except our right
-        return ourPos!=3;
+        //return ourPos!=3;
+        return true;
     }
 }

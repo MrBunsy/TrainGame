@@ -82,7 +82,7 @@ var Wire = function(){
                 connects[i]=true;
             }
             
-            if(nearBy[i].receivesPower(i)){
+            if(nearBy[i].connectsPower(i)){
                 connects[i]=true;
             }
         }
@@ -100,7 +100,7 @@ var Wire = function(){
         return this.power;
     }
     
-    this.receivesPower=function(ourPos){
+    this.connectsPower=function(ourPos){
         return true;
     }
 }
