@@ -232,8 +232,12 @@ var TrainGame = function(div,div2){
 
                 //var blockPos = this.cells[i].pos.multiply(this.cellSize);
 
+            var angle = this.entities[i].getAngle();
+                
             this.mainDiv.ctxs[0].translate(pos.x*this.cellSize, pos.y*this.cellSize);
             this.mainDiv.ctxs[0].scale(this.cellSize/100,this.cellSize/100);
+            
+            this.mainDiv.ctxs[0].rotate(angle);
             
             this.entities[i].draw(this.mainDiv.ctxs[0]);
 
@@ -310,6 +314,7 @@ var TrainGame = function(div,div2){
                 c.speed = 0.5;
                 c.from=3;
                 c.to=1;
+                c.progress=0.5;
                 
                 self.entities.push(c)
                 

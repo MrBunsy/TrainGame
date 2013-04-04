@@ -31,10 +31,15 @@ var Cart = function(cellPos,cell){
     this.getPos=function(){
         return this.cellPos.add(this.dirAndProgressToPos(this.from, this.to, this.progress));
     }
-    
+
+    //angle to be drawn at, remembering that zero is heading left/right
+    this.getAngle=function(){
+        return -Math.PI/2 + this.getDir()*Math.PI/2;
+    }
+
     this.getDir=function(){
         //todo make more fancy for curves
-        return this.progress < 0.5 ? this.fromDir : this.toDir;
+        return this.progress < 0.5 ? (this.from+2)%4 : this.to;
 
     }
     
@@ -47,8 +52,8 @@ var Cart = function(cellPos,cell){
     this.speed=0;
     this.progress=0;
     
-    this.fromDir=0;
-    this.toDir=0;
+//    this.fromDir=0;
+//    this.toDir=0;
     
     //neighbours of the cell that is below us and how much time has passed
     this.update=function(nearBy,dT){
