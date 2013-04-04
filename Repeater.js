@@ -8,7 +8,7 @@ var Repeater = function(){
     this.on=false;
     this.delay=0;
     //the time when power was first provided
-    this.time=0;
+    //this.time=0;
     
      //will always draw as a 100x100 with the top left at -50,-50
     this.draw=function(ctx){
@@ -47,6 +47,14 @@ var Repeater = function(){
         return this.delay==0;
     }
     
+    //when the input last turned on
+    this.firstPower=0;
+    //when the input last turned off
+    this.lastPower=0;
+    
+    this.powered=false;
+    this.oldPowered=false;
+    
     this.update=function(nearBy,time,onTop){
         //return true if anything changed
         
@@ -55,31 +63,60 @@ var Repeater = function(){
         var change=false;
         var oldOn = this.on;
         
-        var powered=false;
+        this.powered=false;
         this.on=false;
         
         for(var i=0;i<4;i++){
             if(i!=1){
                 if(nearBy[i].providesPower(i) > 0){
-                    powered=true;
+                    this.powered=true;
                 }
             }
         }
         
-        
-        //if we have no power, reset the delay back to zero
-        if(!powered || this.time==0){
-            this.time=time;
+        if(this.powered && !this.oldPowered){
+            //now on when wasn't previously
+            this.firstPower=time;
+            //this.lastPower = time + this.delay;
         }
         
-        if(time >=this.time+this.delay && powered){
-            this.on=true;
+        if(!this.powered && this.oldPowered){
+            //now off when was on
+            this.lastPower=time;
         }
+        
+        //currently powered
+        if(this.powered){
+            //waited for the delay
+            if(this.firstPower +this.delay <= time){
+                this.on=true;
+            }
+        }else{
+            //not currently powered
+            //are we in the window of time?
+            if(this.firstPower +this.delay <= time && time <= this.lastPower + this.delay){
+                this.on=true;
+            }
+        }
+        
+//        if(this.firstPower +this.delay <= time && time <= this.lastPower + this.delay){
+//            //the powered window in time
+//            this.on=true;
+//        }
+//        
+//        //if we have no power, reset the delay back to zero
+//        if(!powered || this.time==0){
+//            this.time=time;
+//        }
+//        
+//        if(time >=this.time+this.delay && powered){
+//            this.on=true;
+//        }
         
         
         
         change = change || this.on!=oldOn
-        
+        this.oldPowered = this.powered;
         return change;
     }
     
