@@ -57,6 +57,7 @@ var Track = function(){
             this.trackType="normal";
             return true;
         }
+        return false;
     }
     
     this.getConnections=function(){
@@ -364,20 +365,21 @@ var Track = function(){
     this.providesPower=function(ourPos){
         switch(this.trackType){
             case "powered":
+                //powered rails act like normal wire for transmitting power
                 return this.power;
                 break;
             case "detect":
-                //powered rails which are turned on act as a repeater (my decision, TODO check minecraft)
                 //detectors when activated act as a power source
                 if(this.powered){
                     return 16;
+                }else{
+                    return 0;
                 }
                 break;
             default:
                 return 0;
                 break;
         }
-        //return 0;
     }
     
     //TODO

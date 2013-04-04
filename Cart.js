@@ -53,9 +53,10 @@ var Cart = function(cellPos,cell){
     this.maxSpeed=1;
     this.friction=1/16;
     this.progress=0;
+    this.powerRailBoost = 2;
     
-//    this.fromDir=0;
-//    this.toDir=0;
+    //    this.fromDir=0;
+    //    this.toDir=0;
     
     //neighbours of the cell that is below us and how much time has passed
     this.update=function(nearBy,dt){
@@ -69,15 +70,74 @@ var Cart = function(cellPos,cell){
         
         switch(this.cell.getType()){
             case "track":
+                
                 if(this.speed > 0){
-                    //we are actually moving
-                    
                     this.progress += Math.min(this.speed,this.maxSpeed)*dt;
                     this.speed-=this.friction*dt;
+                }
+                    
+                
+                
+                //this could happen if we've been sitting still for a while
+                if(this.progress >= 0.5 && oldProgress <= 0.5){
+                    //just passed the centre
+                    switch(this.cell.getTrackType()){
+                        case "powered":
+                            if(this.cell.providesPower(-1)>0){
+                                //rail is powered, boost the speed!
+                                //TODO limit the maximum boost
+                                if(this.speed > 0){
+                                    //if already moving, boost speed
+                                    this.speed+=this.powerRailBoost;
+                                }else{
+                                    //not moving, don't do anything unless there's a solid block on one side
+                                    
+                                    if(nearBy[this.from].getType()=="block"){
+                                        //block behind is solid
+                                        //GOGOGO!
+                                        this.speed+=this.powerRailBoost;
+                                    }else if(nearBy[this.from].getType()=="block"){
+                                        //block in front is solid, turn around and
+                                        //then GO!
+                                        var oldFrom=this.from;
+                                        this.from=this.to;
+                                        this.to = oldFrom;
+                                        this.speed+=this.powerRailBoost;
+                                    }
+                                    
+                                    
+                                }
+                            }else{
+                                //not powered, stop the cart
+                                this.speed=0;
+                            }
+                            break;
+                    }
+                    //check what is coming next
+                    switch(nearBy[this.to].getType()){
+                        case "track":
+                            //carry on
+
+                            break;
+                        case "block":
+                            //bounce
+                            var oldFrom=this.from;
+                            this.from=this.to;
+                            this.to = oldFrom;
+                            break;
+                        case "empty":
+                            //derail, TODO
+                            break;
+                    }
+                }
+                
+                
+                if(this.speed > 0){
+                //we are (still) actually moving
                     
                     if(this.progress > 1){
                         //passed onto the next cell
-                        
+
                         //update the cell position based on where we were headed
                         switch(this.to){
                             case 0:
@@ -93,42 +153,29 @@ var Cart = function(cellPos,cell){
                                 this.cellPos.x--;
                                 break;
                         }
-                        
+
                         //set our cell to this new cell we've moved into
                         this.cell = nearBy[this.to];
-                        
+
                         //from is based on where we entered this new cell from
                         this.from = (this.to+2)%4;
-                        
+
                         //atm assuming next cell is a rail
                         this.to = this.getConnectionThatIsnt(this.cell.getConnections(), this.from);
                         this.progress-=1;
+
+                    }
                         
-                    }
+                        
+                        
                     
-                    if(this.progress >= 0.5 && oldProgress < 0.5){
-                        //just passed the centre
-                        switch(nearBy[this.to].getType()){
-                            case "track":
-                                //carry on
-                                
-                                break;
-                            case "block":
-                                //bounce
-                                break;
-                            case "empty":
-                                
-                                break;
-                        }
-                    }
-                    
-//                    if(this.progress < 0.5){
-//                        //moving towards centre of cell
-//                        //nothing complicated here
-//                    }else{
-//                        //TODO depending on the neighbour in the to direction, decide what happens
-//                        //also if we've just passed progress of 0.5, check if anything needs to happen based on THIS cell.
-//                    }
+                //                    if(this.progress < 0.5){
+                //                        //moving towards centre of cell
+                //                        //nothing complicated here
+                //                    }else{
+                //                        //TODO depending on the neighbour in the to direction, decide what happens
+                //                        //also if we've just passed progress of 0.5, check if anything needs to happen based on THIS cell.
+                //                    }
                     
                     
                     
@@ -152,11 +199,11 @@ var Cart = function(cellPos,cell){
         //crude atm
         //TODO improve for curves
         //if(progress<0.5){
-            var angle = this.dirToVector(progress > 0.5 ? to : from).multiply(Math.abs(progress-0.5));
+        var angle = this.dirToVector(progress > 0.5 ? to : from).multiply(Math.abs(progress-0.5));
             
-            return centre.add(angle);
+        return centre.add(angle);
             
-        //}
+    //}
     }
     //from a list of (rail) connections return the one that isn't isnt
     this.getConnectionThatIsnt=function(connections,isnt){
@@ -168,4 +215,32 @@ var Cart = function(cellPos,cell){
         throw "weren't enough connections";
         return -1;
     }
+    
+    this.firstPlaced=function(){
+        
+        this.from=-1;
+        this.to=-1;
+        
+        if(this.cell!=null){
+            //we're actually on a cell
+            //set from and to from the connections of the cell
+            //doens't really matter which is which
+            for(var i=0;i<4;i++){
+                if(this.cell.getConnections()[i]){
+                    if(this.from<0){
+                        this.from=i;
+                    }else{
+                        this.to=i;
+                    }
+                }
+            }
+        }
+        
+        this.progress=0.5;
+        this.speed=0;
+    }
+    
+    
+    this.firstPlaced();
+    
 }

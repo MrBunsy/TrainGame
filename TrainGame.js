@@ -311,10 +311,10 @@ var TrainGame = function(div,div2){
             case "cart":
                 
                 var c = new Cart(new Vector(x,y), self.cells[x][y]);
-                c.speed = 0.5;
-                c.from=3;
-                c.to=1;
-                c.progress=0.5;
+//                c.speed = 0.5;
+//                c.from=3;
+//                c.to=1;
+//                c.progress=0.5;
                 
                 self.entities.push(c)
                 
