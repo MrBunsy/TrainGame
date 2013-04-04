@@ -37,8 +37,11 @@ var TrainGame = function(div,div2){
     
     //this.state="new";
     
-    this.tools=["track","power","wire","repeater","block","delete"];
+    this.tools=["track","power","wire","repeater","block","delete","cart"];
     this.selectedTool="track";
+    
+    //stuff that can move/do things
+    this.entities=[];
     
     //this.animationController=new AnimationController(this.mainDiv.ctxs[2], 30,this.width,this.height);
     
@@ -81,8 +84,21 @@ var TrainGame = function(div,div2){
     
     this.update=function(){
         this.time+=this.dt;
+        
         this.updateCells();
+        this.updateEntities();
+        
         this.draw();
+    }
+    
+    this.updateEntities=function(){
+        for(var i=0;i<this.entities.length;i++){
+            var e = this.entities[i];
+            //where is this entity?
+            var cellPos = e.getCellPos();
+            //give it neighbours and get it to update
+            e.update(this.getNeighbours(cellPos.x,cellPos.y), this.dt);
+        }
     }
     
     //run through everything and update everything
@@ -150,6 +166,10 @@ var TrainGame = function(div,div2){
             case "block":
                return  new Block();
                 break;
+            case "cart":
+                //not strictly a block
+                return new Cart(null, null);
+                break;
             default:
                 return new Cell();
                 break;
@@ -180,7 +200,7 @@ var TrainGame = function(div,div2){
             this.mainDiv.ctxs[0].stroke();
         }
         
-        
+        //draw all the cells
         for(var x=0;x<this.cellsWide;x++){
             for(var y=0;y<this.cellsHigh;y++){
             
@@ -199,6 +219,25 @@ var TrainGame = function(div,div2){
                 this.mainDiv.ctxs[0].restore();
             }
             
+        }
+        
+        //draw the entities
+        for(var i=0;i<this.entities.length;i++){
+            
+            
+            //var cellPos = this.entities[i].getCellPos();
+            var pos = this.entities[i].getPos();
+            
+            this.mainDiv.ctxs[0].save();
+
+                //var blockPos = this.cells[i].pos.multiply(this.cellSize);
+
+            this.mainDiv.ctxs[0].translate(pos.x*this.cellSize, pos.y*this.cellSize);
+            this.mainDiv.ctxs[0].scale(this.cellSize/100,this.cellSize/100);
+            
+            this.entities[i].draw(this.mainDiv.ctxs[0]);
+
+            this.mainDiv.ctxs[0].restore();
         }
         
         //draw the toolbox
@@ -239,6 +278,7 @@ var TrainGame = function(div,div2){
             this.toolBoxDiv.ctxs[0].scale(this.toolSize/100,this.toolSize/100);
             //this.ctxs[0].scale(0.1);
             
+            //if this is the tool currently selected, highlight the background with 
             if(this.selectedTool==this.tools[i]){
                 this.toolBoxDiv.ctxs[0].fillStyle="rgb(255,255,0)";
                 this.toolBoxDiv.ctxs[0].fillRect(-50,-50,100,100);
@@ -263,46 +303,62 @@ var TrainGame = function(div,div2){
     }
     //the user has clicked a cell
     this.cellPressed=function(x,y){
-        if(self.cells[x][y].getType()=="empty"){
-            //self.cells[x][y] = new Cell();
-            switch(self.selectedTool){
-                case "delete":
-                    //don't do anything on an empty cell with the delete tool
-                    break;
-                default:
-                    self.cells[x][y] = this.getNewCell(self.selectedTool);
-                    break;
+        switch(self.selectedTool){
+            case "cart":
+                
+                var c = new Cart(new Vector(x,y), self.cells[x][y]);
+                c.speed = 0.5;
+                c.from=3;
+                c.to=1;
+                
+                self.entities.push(c)
+                
+                break;
+            default:
+                //block related things
+                if(self.cells[x][y].getType()=="empty"){
+                //self.cells[x][y] = new Cell();
+                switch(self.selectedTool){
+                    case "delete":
+                        //don't do anything on an empty cell with the delete tool
+                        break;
+                    default:
+                        self.cells[x][y] = this.getNewCell(self.selectedTool);
+                        break;
+                }
             }
-        }
-        else{
-            //pressed a cell with something already tehre
-            switch(self.selectedTool){
-                case "delete":
-                    //empty this cell
-                    self.cells[x][y] = new Cell();
-                    break;
-                case "repeater":
-                    //increment the delay of the repeater
-                    if(self.cells[x][y].incrementDelay()){
-                        //if it's gone back to zero, remove it
+            else{
+                //pressed a cell with something already tehre
+                switch(self.selectedTool){
+                    case "delete":
+                        //empty this cell
                         self.cells[x][y] = new Cell();
-                    }
-                    break;
-                case "track":
-                    //go through the different types of track
-                    if(self.cells[x][y].incrementType()){
-                        //if it's gone back to normal track, remove it
-                        self.cells[x][y] = new Cell();
-                    }
-                    break;
-                default:
-                    //remove whatever it was
-                    if(self.cells[x][y].getType()==self.selectedTool){
-                        self.cells[x][y] = new Cell();
-                    }
-                    break;
+                        break;
+                    case "repeater":
+                        //increment the delay of the repeater
+                        if(self.cells[x][y].incrementDelay()){
+                            //if it's gone back to zero, remove it
+                            self.cells[x][y] = new Cell();
+                        }
+                        break;
+                    case "track":
+                        //go through the different types of track
+                        if(self.cells[x][y].incrementType()){
+                            //if it's gone back to normal track, remove it
+                            self.cells[x][y] = new Cell();
+                        }
+                        break;
+                    default:
+                        //remove whatever it was
+                        if(self.cells[x][y].getType()==self.selectedTool){
+                            self.cells[x][y] = new Cell();
+                        }
+                        break;
+                }
             }
+            break;
         }
+        
         
         self.updateCells();
         self.draw();
