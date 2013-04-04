@@ -31,12 +31,17 @@ var Cart = function(cellPos,cell){
     this.cellPos=cellPos;
     this.cell=cell;
     
+    this.derailed=false;
+    
     this.getPos=function(){
         return this.cellPos.add(this.dirAndProgressToPos(this.from, this.to, this.progress));
     }
 
     //angle to be drawn at, remembering that zero is heading left/right
     this.getAngle=function(){
+        if(this.derailed){
+            return -Math.PI/4;
+        }
         return -Math.PI/2 + this.getDir()*Math.PI/2;
     }
 
@@ -163,10 +168,20 @@ var Cart = function(cellPos,cell){
 
                         //from is based on where we entered this new cell from
                         this.from = (this.to+2)%4;
-
+                        
+                        switch(this.cell.getType()){
+                            case "track":
+                                this.to = this.getConnectionThatIsnt(this.cell.getConnections(), this.from);
+                                this.progress-=1;
+                                break;
+                            default:
+                                this.progress=0.5;
+                                this.speed=0;
+                                this.derailed=true;
+                                break;
+                        }
                         //atm assuming next cell is a rail
-                        this.to = this.getConnectionThatIsnt(this.cell.getConnections(), this.from);
-                        this.progress-=1;
+                        
 
                     }
                         

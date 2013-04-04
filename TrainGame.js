@@ -9,6 +9,8 @@
  * 
  * pickaxe for deleting blocks?
  * 
+ * atm it is possible to change the cell under the cart and it won't have any idea.
+ * 
  */
 
 var TrainGame = function(div,div2){
