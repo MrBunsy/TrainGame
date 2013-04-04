@@ -34,7 +34,9 @@ var Track = function(){
         return changed;
     }
     
-    
+    this.getTrackType=function(){
+        return this.trackType;
+    }
     
     this.getType=function(){
         return "track"
@@ -122,7 +124,7 @@ var Track = function(){
         
         var railColour="rgb(128,128,128)";
         var sleeperColour="rgb(96,64,32)";
-        var powerColour= this.powered ? "rgb(255,128,0)" : "rgb(128,64,0)";
+        var powerColour= this.power>0 ? "rgb(255,128,0)" : "rgb(128,64,0)";
         
         var from=[];
         var to=[];
@@ -219,14 +221,17 @@ var Track = function(){
         return this.happy;
     }
     
-    this.powered=false;
+    //this.powered=false;
+    this.power=0;
     //is this track one that will change direction if it is powered?
     this.canReceivePower=false;
     
     this.update=function(nearBy,dT){
      
-        var oldPowered = this.powered;
-        var powered=false;
+        var oldPower = this.power;
+        this.power=0;
+        //need to record how much power so it can be transmitted?
+        //this.power=0;
         
         //find out how many nearby rails point towards us
         var pointAtUs=0;
@@ -246,12 +251,13 @@ var Track = function(){
                 pointDirs.push(i);
             }
             
-            if(nearBy[i].providesPower(i) > 0){
-                powered=true;
+            if(nearBy[i].providesPower(i)-1 > this.power){
+                this.power=nearBy[i].providesPower(i)-1;
+                //this.power = nearBy[i].providesPower(i)-1;
             }
         }
         
-        this.powered=powered;
+        //this.power=power;
         
         var oldReceiverPower=this.canReceivePower;
         this.canReceivePower=false;
@@ -267,7 +273,7 @@ var Track = function(){
         
         //if this rail was previously happy, and is still connected to the ones it was, don't override it with the south-east rule
         //AND the power status is still the same
-        if(this.happy && pointAtUs>=2 && powered==this.previousPower){
+        if(this.happy && pointAtUs>=2 && this.power==this.previousPower){
             //check that the rails pointing at us are the same as the old ones
             for(var i=0;i<4;i++){
                 if(this.connections[i] && pointDirs.indexOf(i)<0){
@@ -287,7 +293,7 @@ var Track = function(){
         var connects = [false,false,false,false];
         var changed = false;
         
-        if(this.powered!=oldPowered){
+        if(this.power!=oldPower){
             changed = true;
         }
         
@@ -297,7 +303,7 @@ var Track = function(){
             //enough stuff pointing directly at us
             
             
-            if(powered){
+            if(this.power>0){
                 //work backwards, anti-clockwise
                 for(var i=pointAtUs-1;i>=pointAtUs-2;i--){
                     connects[pointDirs[i]]=true;
@@ -350,13 +356,28 @@ var Track = function(){
         }
         
         this.prevNearRails=nearRails;
-        this.previousPower=powered;
+        this.previousPower=this.power;
         
         return changed;
     }
     
     this.providesPower=function(ourPos){
-        return 0;
+        switch(this.trackType){
+            case "powered":
+                return this.power;
+                break;
+            case "detect":
+                //powered rails which are turned on act as a repeater (my decision, TODO check minecraft)
+                //detectors when activated act as a power source
+                if(this.powered){
+                    return 16;
+                }
+                break;
+            default:
+                return 0;
+                break;
+        }
+        //return 0;
     }
     
     //TODO

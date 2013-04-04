@@ -50,13 +50,15 @@ var Cart = function(cellPos,cell){
     
     //speed in blocks per second
     this.speed=0;
+    this.maxSpeed=1;
+    this.friction=1/16;
     this.progress=0;
     
 //    this.fromDir=0;
 //    this.toDir=0;
     
     //neighbours of the cell that is below us and how much time has passed
-    this.update=function(nearBy,dT){
+    this.update=function(nearBy,dt){
         
         /*
          * general idea, if a rail follow it, turning abrumptly at corners.
@@ -70,7 +72,8 @@ var Cart = function(cellPos,cell){
                 if(this.speed > 0){
                     //we are actually moving
                     
-                    this.progress += this.speed*dT;
+                    this.progress += Math.min(this.speed,this.maxSpeed)*dt;
+                    this.speed-=this.friction*dt;
                     
                     if(this.progress > 1){
                         //passed onto the next cell
@@ -103,14 +106,29 @@ var Cart = function(cellPos,cell){
                         
                     }
                     
-                    
-                    if(this.progress < 0.5){
-                        //moving towards centre of cell
-                        //nothing complicated here
-                    }else{
-                        //TODO depending on the neighbour in the to direction, decide what happens
-                        //also if we've just passed progress of 0.5, check if anything needs to happen based on THIS cell.
+                    if(this.progress >= 0.5 && oldProgress < 0.5){
+                        //just passed the centre
+                        switch(nearBy[this.to].getType()){
+                            case "track":
+                                //carry on
+                                
+                                break;
+                            case "block":
+                                //bounce
+                                break;
+                            case "empty":
+                                
+                                break;
+                        }
                     }
+                    
+//                    if(this.progress < 0.5){
+//                        //moving towards centre of cell
+//                        //nothing complicated here
+//                    }else{
+//                        //TODO depending on the neighbour in the to direction, decide what happens
+//                        //also if we've just passed progress of 0.5, check if anything needs to happen based on THIS cell.
+//                    }
                     
                     
                     
