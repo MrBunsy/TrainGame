@@ -47,7 +47,7 @@ var Repeater = function(){
         return this.delay==0;
     }
     
-    this.update=function(nearBy,time){
+    this.update=function(nearBy,time,onTop){
         //return true if anything changed
         
         

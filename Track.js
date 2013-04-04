@@ -227,7 +227,7 @@ var Track = function(){
     //is this track one that will change direction if it is powered?
     this.canReceivePower=false;
     
-    this.update=function(nearBy,dT){
+    this.update=function(nearBy,time,onTop){
      
         var oldPower = this.power;
         this.power=0;
@@ -252,9 +252,19 @@ var Track = function(){
                 pointDirs.push(i);
             }
             
-            if(nearBy[i].providesPower(i)-1 > this.power){
+            if(nearBy[i].providesPower(i)-1 > this.power && (this.canReceivePower || this.trackType!="normal")){
                 this.power=nearBy[i].providesPower(i)-1;
                 //this.power = nearBy[i].providesPower(i)-1;
+            }
+        }
+        
+        //check for carts on top
+        if(this.trackType=="detect"){
+            for(var i=0;i<onTop.length;i++){
+                if(onTop[i].getType()=="cart"){
+                    //cart on top, act as power source
+                    this.power=16;
+                }
             }
         }
         
@@ -363,23 +373,24 @@ var Track = function(){
     }
     
     this.providesPower=function(ourPos){
-        switch(this.trackType){
-            case "powered":
-                //powered rails act like normal wire for transmitting power
-                return this.power;
-                break;
-            case "detect":
-                //detectors when activated act as a power source
-                if(this.powered){
-                    return 16;
-                }else{
-                    return 0;
-                }
-                break;
-            default:
-                return 0;
-                break;
-        }
+        return this.power;
+//        switch(this.trackType){
+//            case "powered":
+//                //powered rails act like normal wire for transmitting power
+//                return this.power;
+//                break;
+//            case "detect":
+//                //detectors when activated act as a power source
+//                if(this.powered){
+//                    return 16;
+//                }else{
+//                    return 0;
+//                }
+//                break;
+//            default:
+//                return 0;
+//                break;
+//        }
     }
     
     //TODO

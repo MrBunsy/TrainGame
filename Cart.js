@@ -16,13 +16,16 @@ var Cart = function(cellPos,cell){
         ctx.fillStyle="rgb(128,128,128)";
         
         //facing left-right
-        ctx.fillRect(-40,-30,80,60);
+        ctx.fillRect(-45,-35,90,70);
         
         
         ctx.fillStyle="rgb(100,100,100)";
-        ctx.fillRect(-35,-25,70,50);
+        ctx.fillRect(-40,-30,80,60);
     }
     
+    this.getType=function(){
+        return "cart";
+    }
     
     //where is cell?
     this.cellPos=cellPos;

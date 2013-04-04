@@ -113,7 +113,7 @@ var TrainGame = function(div,div2){
                 for(var y=0;y<this.cellsHigh;y++){
                     var nearBy = this.getNeighbours(x,y);
                     
-                    if(this.cells[x][y].update(nearBy,this.time)){
+                    if(this.cells[x][y].update(nearBy,this.time,this.getEntitiesHere(x,y))){
                         anythingChanged=true;
                     }
                 }
@@ -307,6 +307,21 @@ var TrainGame = function(div,div2){
         }
         
     }
+    
+    //not sure yet if more than one entity will ever be allowed on the same cell
+    this.getEntitiesHere=function(x,y){
+        var entities=[];
+        for(var i=0;i<this.entities.length;i++){
+            var cellPos = this.entities[i].getCellPos();
+            if(cellPos.x == x && cellPos.y == y){
+                //this entity is on this block
+                //remove it
+                entities.push(this.entities[i]);
+            }
+        }
+        return entities;
+    }
+    
     //the user has clicked a cell
     this.cellPressed=function(x,y){
         switch(self.selectedTool){
@@ -326,6 +341,7 @@ var TrainGame = function(div,div2){
                 //otherwise remove teh block
                 var removedEntity=false;
                 
+                //TODO use getEntities
                 for(var i=0;i<self.entities.length;i++){
                     var cellPos = self.entities[i].getCellPos();
                     if(cellPos.x == x && cellPos.y == y){

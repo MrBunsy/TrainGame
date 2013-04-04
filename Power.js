@@ -19,7 +19,7 @@ var Power = function(){
         return "power"
     }
     
-    this.update=function(nearBy,dT){
+    this.update=function(nearBy,time,onTop){
         //return true if anything changed
         return false;
     }
