@@ -7,6 +7,8 @@
  * levers
  * logic blocks
  * 
+ * pickaxe for deleting blocks?
+ * 
  */
 
 var TrainGame = function(div,div2){
@@ -78,8 +80,8 @@ var TrainGame = function(div,div2){
     this.start=function(){
         //little hack so that when this.update is called 'this' works as you expect
         this.thread = setInterval(function(){
-                self.update.call(self)
-            }, this.interval);
+            self.update.call(self)
+        }, this.interval);
     }
     
     this.update=function(){
@@ -152,19 +154,19 @@ var TrainGame = function(div,div2){
     this.getNewCell=function(name){
         switch(name){
             case "track":
-               return  new Track();
+                return  new Track();
                 break;
             case "power":
-               return  new Power();
+                return  new Power();
                 break;
             case "wire":
-               return  new Wire();
+                return  new Wire();
                 break;
             case "repeater":
-               return  new Repeater();
+                return  new Repeater();
                 break;
             case "block":
-               return  new Block();
+                return  new Block();
                 break;
             case "cart":
                 //not strictly a block
@@ -230,7 +232,7 @@ var TrainGame = function(div,div2){
             
             this.mainDiv.ctxs[0].save();
 
-                //var blockPos = this.cells[i].pos.multiply(this.cellSize);
+            //var blockPos = this.cells[i].pos.multiply(this.cellSize);
 
             var angle = this.entities[i].getAngle();
                 
@@ -246,10 +248,10 @@ var TrainGame = function(div,div2){
         
         //draw the toolbox
         this.toolBoxDiv.ctxs[0].clearRect(0,0,this.toolBoxDiv.width+1,this.toolBoxDiv.height+1);
-//        for(var i=0;i<this.tools.length;i++){
-//            this.toolBoxDiv.ctxs[0].strokeRect(i*this.cellSize,0,this.cellSize,this.cellSize);
-//            
-//        }
+        //        for(var i=0;i<this.tools.length;i++){
+        //            this.toolBoxDiv.ctxs[0].strokeRect(i*this.cellSize,0,this.cellSize,this.cellSize);
+        //            
+        //        }
 
         //draw a grid
         for(var x=0;x<this.toolsWide;x++){
@@ -311,57 +313,80 @@ var TrainGame = function(div,div2){
             case "cart":
                 
                 var c = new Cart(new Vector(x,y), self.cells[x][y]);
-//                c.speed = 0.5;
-//                c.from=3;
-//                c.to=1;
-//                c.progress=0.5;
+                //                c.speed = 0.5;
+                //                c.from=3;
+                //                c.to=1;
+                //                c.progress=0.5;
                 
                 self.entities.push(c)
+                
+                break;
+            case "delete":
+                //if entity is present, remove it,
+                //otherwise remove teh block
+                var removedEntity=false;
+                
+                for(var i=0;i<self.entities.length;i++){
+                    var cellPos = self.entities[i].getCellPos();
+                    if(cellPos.x == x && cellPos.y == y){
+                        //this entity is on this block
+                        //remove it
+                        self.entities.splice(i, 1);
+                        removedEntity=true;
+                        break;
+                    }
+                }
+                
+                if(!removedEntity){
+                    if(self.cells[x][y].getType()!="empty"){
+                        self.cells[x][y]=new Cell();
+                    }
+                }
                 
                 break;
             default:
                 //block related things
                 if(self.cells[x][y].getType()=="empty"){
-                //self.cells[x][y] = new Cell();
-                switch(self.selectedTool){
-                    case "delete":
-                        //don't do anything on an empty cell with the delete tool
-                        break;
-                    default:
-                        self.cells[x][y] = this.getNewCell(self.selectedTool);
-                        break;
+                    //self.cells[x][y] = new Cell();
+                    switch(self.selectedTool){
+                        case "delete":
+                            //don't do anything on an empty cell with the delete tool
+                            break;
+                        default:
+                            self.cells[x][y] = this.getNewCell(self.selectedTool);
+                            break;
+                    }
                 }
-            }
-            else{
-                //pressed a cell with something already tehre
-                switch(self.selectedTool){
-                    case "delete":
-                        //empty this cell
-                        self.cells[x][y] = new Cell();
-                        break;
-                    case "repeater":
-                        //increment the delay of the repeater
-                        if(self.cells[x][y].incrementDelay()){
-                            //if it's gone back to zero, remove it
+                else{
+                    //pressed a cell with something already tehre
+                    switch(self.selectedTool){
+                        case "delete":
+                            //empty this cell
                             self.cells[x][y] = new Cell();
-                        }
-                        break;
-                    case "track":
-                        //go through the different types of track
-                        if(self.cells[x][y].incrementType()){
-                            //if it's gone back to normal track, remove it
-                            self.cells[x][y] = new Cell();
-                        }
-                        break;
-                    default:
-                        //remove whatever it was
-                        if(self.cells[x][y].getType()==self.selectedTool){
-                            self.cells[x][y] = new Cell();
-                        }
-                        break;
+                            break;
+                        case "repeater":
+                            //increment the delay of the repeater
+                            if(self.cells[x][y].incrementDelay()){
+                                //if it's gone back to zero, remove it
+                                self.cells[x][y] = new Cell();
+                            }
+                            break;
+                        case "track":
+                            //go through the different types of track
+                            if(self.cells[x][y].incrementType()){
+                                //if it's gone back to normal track, remove it
+                                self.cells[x][y] = new Cell();
+                            }
+                            break;
+                        default:
+                            //remove whatever it was
+                            if(self.cells[x][y].getType()==self.selectedTool){
+                                self.cells[x][y] = new Cell();
+                            }
+                            break;
+                    }
                 }
-            }
-            break;
+                break;
         }
         
         
@@ -372,32 +397,32 @@ var TrainGame = function(div,div2){
     this.mousePressed=false;
     this.mouseLastCell=new Coords(-1,-1);
     
-//    this.getMousePos=function(e){
-//        var x,y;
-//                
-//        if(e.pageX || e.pageY){
-//            x=e.pageX;
-//            y=e.pageY;
-//        }else {
-//            x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-//            y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-//        }
-//        
-//        var canvasPos = $("#"+this.div.id).offset();
-//        //var canvasPos = $(this.canvas).offset();
-//        
-////        x-=self.canvas.offsetLeft;
-////        y-=self.canvas.offsetTop;
-//        x-=canvasPos.left;
-//        y-=canvasPos.top;
-//        
-//        //if we're  using an inverted y axis, readjust mouse click pos
-//        if(self.inverted){
-//            y+=(self.height/2-y)*2
-//        }
-//        
-//        return new Vector(x,y);
-//    }
+    //    this.getMousePos=function(e){
+    //        var x,y;
+    //                
+    //        if(e.pageX || e.pageY){
+    //            x=e.pageX;
+    //            y=e.pageY;
+    //        }else {
+    //            x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+    //            y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    //        }
+    //        
+    //        var canvasPos = $("#"+this.div.id).offset();
+    //        //var canvasPos = $(this.canvas).offset();
+    //        
+    ////        x-=self.canvas.offsetLeft;
+    ////        y-=self.canvas.offsetTop;
+    //        x-=canvasPos.left;
+    //        y-=canvasPos.top;
+    //        
+    //        //if we're  using an inverted y axis, readjust mouse click pos
+    //        if(self.inverted){
+    //            y+=(self.height/2-y)*2
+    //        }
+    //        
+    //        return new Vector(x,y);
+    //    }
     
     
     
@@ -447,9 +472,9 @@ var TrainGame = function(div,div2){
     
     this.generateCellSize(25,25);
     
-//    this.div.addEventListener("mousedown", this.mouseDown,false);
-//    this.div.addEventListener("mouseup", this.mouseUp,false);
-//    this.div.addEventListener("mousemove", this.mouseMove,false);
+    //    this.div.addEventListener("mousedown", this.mouseDown,false);
+    //    this.div.addEventListener("mouseup", this.mouseUp,false);
+    //    this.div.addEventListener("mousemove", this.mouseMove,false);
 
     this.mainDiv.setMouseDown(this.mouseDown);
     this.mainDiv.setMouseUp(this.mouseUp);
@@ -551,10 +576,10 @@ var DivController = function(div,canvases){
         self.mouseUpCallback(mousePos);
     }
     
-//    //not sure if to use this or not
-//    this.assignEventHandler = function(event,handler){
-//        this.div.addEventListener(event, handler,false);
-//    }
+    //    //not sure if to use this or not
+    //    this.assignEventHandler = function(event,handler){
+    //        this.div.addEventListener(event, handler,false);
+    //    }
     
     
     this.div.addEventListener("mousedown", this.mouseDown,false);

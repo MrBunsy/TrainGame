@@ -50,10 +50,10 @@ var Cart = function(cellPos,cell){
     
     //speed in blocks per second
     this.speed=0;
-    this.maxSpeed=1;
-    this.friction=1/16;
+    this.maxSpeed=3;
+    this.friction=0.1;
     this.progress=0;
-    this.powerRailBoost = 2;
+    this.powerRailBoost = 5;
     
     //    this.fromDir=0;
     //    this.toDir=0;
@@ -110,6 +110,7 @@ var Cart = function(cellPos,cell){
                             }else{
                                 //not powered, stop the cart
                                 this.speed=0;
+                                this.progress=0.5;
                             }
                             break;
                     }
